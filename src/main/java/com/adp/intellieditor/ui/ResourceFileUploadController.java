@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ResourceFileUploadController {
 
     @RequestMapping(method = RequestMethod.POST)
-    public String multiFileUpload(@RequestParam("files") MultipartFile[] files) {
+    public String bundleResources(@RequestParam("files") MultipartFile[] files) {
         return "";
     }
 
