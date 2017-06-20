@@ -18,42 +18,42 @@ import java.io.*;
 @RequestMapping("/upload")
 public class ResourceFileUploadController {
 
-    private static String UPLOADED_FOLDER = "./tmp/";
+    private static String UPLOADED_FOLDER = "./tmp";
 
     @RequestMapping(method = RequestMethod.POST)
     public String bundleResources(@RequestParam("files") MultipartFile[] files) throws IOException {
-        writeDocumentToServer(files);
-        return "success";
+        String message = writeDocumentToServer(files);
+        return message;
     }
 
-    private String writeDocumentToServer(MultipartFile[] files) throws IOException, FileNotFoundException {
-        String msg = "";
+    private String writeDocumentToServer(MultipartFile[] files) {
+
+        if (files.length == 0)
+            return "Mandatory information missing";
+
+        String message = "";
         for (int i = 0; i < files.length; i++) {
-            String fileName = files[i].getOriginalFilename();
+            MultipartFile file = files[i];
+            String fileName =  files[i].getOriginalFilename();
+            try {
 
-            byte[] bytes = files[i].getBytes();
-            File newUploadFile = new File(UPLOADED_FOLDER + fileName);
-            BufferedOutputStream buffStream = new BufferedOutputStream(new FileOutputStream(newUploadFile));
-            buffStream.write(bytes);
-            buffStream.close();
+                byte[] bytes = file.getBytes();
+                File uploadDirectory = new File(UPLOADED_FOLDER + File.separator);
 
-           /* if (StringUtils.isNotEmpty(category)) {
-                FileUtils.deleteQuietly(newUploadFile);
-            }*/
+                if (!uploadDirectory.exists())
+                    uploadDirectory.mkdirs();
 
-            File directory = new File(UPLOADED_FOLDER);
-            if (!directory.exists()) {
-                directory.mkdir();
+                File serverFile = new File(uploadDirectory.getAbsolutePath()
+                        + File.separator + fileName);
+                BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+                stream.write(bytes);
+                stream.close();
+                message = message + "You successfully uploaded file=" + fileName + "";
+            } catch (IOException e){
+                return "You failed to upload " + fileName + " => " + e.getMessage();
             }
-
-            BufferedOutputStream buffStreamCate = new BufferedOutputStream(
-                    new FileOutputStream(new File(UPLOADED_FOLDER + "/" + fileName)));
-            buffStreamCate.write(bytes);
-
-            buffStreamCate.close();
         }
-        msg = "You have successfully uploaded.";
-        return msg;
+        return message;
     }
 
 
